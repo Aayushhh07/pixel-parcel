@@ -2,7 +2,7 @@
 
 **Pixel Parcel** is a lightweight, modern web application that allows users to **upload any text or media file** and instantly generates a **QR code** for easy sharing. Whether it’s a note, an image, or a document, just drop it in and share the generated QR code — quick, secure, and seamless.
 
-> 🔗 **Live Demo**: [Pixel Parcel on Lovable](https://lovable.dev/projects/e4be1e98-7eb7-4488-879c-f27258665243)
+> 🔗 **Live Demo**: [Pixel Parcel on Lovable](https://pixel-parcel.lovable.app/)
 
 ---
 
