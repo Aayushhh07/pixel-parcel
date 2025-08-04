@@ -18,6 +18,8 @@ const QRGenerator = () => {
   const { toast } = useToast();
 
   const generateQRCode = async (data: string) => {
+    console.log('Generating QR code for data length:', data.length);
+    
     if (!data.trim()) {
       toast({
         title: "Error",
@@ -35,17 +37,20 @@ const QRGenerator = () => {
         color: {
           dark: '#1e40af', // Primary blue
           light: '#ffffff'
-        }
+        },
+        errorCorrectionLevel: 'M'
       });
       setQrCodeUrl(qrCodeDataUrl);
+      console.log('QR code generated successfully');
       toast({
         title: "Success",
         description: "QR code generated successfully!"
       });
     } catch (error) {
+      console.error('QR code generation error:', error);
       toast({
         title: "Error",
-        description: "Failed to generate QR code",
+        description: `Failed to generate QR code: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive"
       });
     }
@@ -59,17 +64,46 @@ const QRGenerator = () => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      console.log('File selected:', file.name, 'Type:', file.type, 'Size:', file.size);
       setUploadedFile(file);
+      
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
-        generateQRCode(content);
+        console.log('File content length:', content.length);
+        
+        // For very large files, use file metadata instead of full content
+        if (content.length > 2000) {
+          const fileInfo = `File: ${file.name}
+Type: ${file.type}
+Size: ${file.size} bytes
+Modified: ${new Date(file.lastModified).toLocaleString()}`;
+          console.log('File too large, using metadata:', fileInfo);
+          generateQRCode(fileInfo);
+        } else {
+          generateQRCode(content);
+        }
       };
       
-      if (file.type.startsWith('text/')) {
+      reader.onerror = (error) => {
+        console.error('File reading error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to read the file",
+          variant: "destructive"
+        });
+      };
+      
+      // Always read as text first, fallback to data URL for binary files
+      if (file.type.startsWith('text/') || file.type === 'application/json') {
         reader.readAsText(file);
       } else {
-        reader.readAsDataURL(file);
+        // For non-text files, create a file info summary instead of data URL
+        const fileInfo = `File: ${file.name}
+Type: ${file.type}
+Size: ${file.size} bytes
+Modified: ${new Date(file.lastModified).toLocaleString()}`;
+        generateQRCode(fileInfo);
       }
     }
   };
